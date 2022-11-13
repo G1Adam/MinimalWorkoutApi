@@ -1,10 +1,11 @@
 ﻿namespace MinimalWorkoutApi.Endpoints
 {
+    using Microsoft.AspNetCore.Mvc;
     using MinimalWorkoutApi.DatabaseContext;
     using MinimalWorkoutApi.Models;
     using MinimalWorkoutApi.Repository;
 
-    internal static class WorkoutEndpoints
+    public static class WorkoutEndpoints
     {
         public static void MapWorkoutEndpoints(this WebApplication app)
         {
