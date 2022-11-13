@@ -23,7 +23,7 @@ app.MapGet("/workoutEntries", async (WorkoutDbContext db) => await db.WorkoutEnt
 
 app.MapGet("/workoutEntries/{id}", async (int id, WorkoutDbContext db) => 
 {
-    var workoutEntry = await db.WorkoutEntries.Include(a => a.Sets).FindAsync(id);
+    var workoutEntry = await db.WorkoutEntries.Include(a => a.Sets).FirstOrDefaultAsync(o => o.Id == id);
 
     if(workoutEntry is null)
     {
@@ -45,7 +45,7 @@ app.MapPost("/workoutEntries", async (WorkoutEntry workout, WorkoutDbContext db)
 
 app.MapPut("/workoutEntries", async (int id, WorkoutEntry workout, WorkoutDbContext db) =>
 {
-    var workoutEntry = await db.WorkoutEntries.Include(a => a.Sets).FindAsync(id);
+    var workoutEntry = await db.WorkoutEntries.Include(a => a.Sets).FirstOrDefaultAsync(o => o.Id == id);
 
     if (workoutEntry is null)
     {
