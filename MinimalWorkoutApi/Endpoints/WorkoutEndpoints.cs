@@ -1,7 +1,8 @@
 ﻿namespace MinimalWorkoutApi.Endpoints
 {
-    using Microsoft.EntityFrameworkCore;
+    using MinimalWorkoutApi.DatabaseContext;
     using MinimalWorkoutApi.Models;
+    using MinimalWorkoutApi.Repository;
 
     internal static class WorkoutEndpoints
     {
@@ -14,14 +15,20 @@
             app.MapDelete("workoutEntry/{id}", DeleteWorkoutEntry).WithOpenApi();
         }
 
-        internal static async Task<List<WorkoutEntry>> GetAllWorkoutEntries(WorkoutDbContext db)
+        public static void RegisterWorkoutEntryServices(this IServiceCollection services)
         {
-            return await db.WorkoutEntries.Include(a => a.Sets).ToListAsync();
+            services.AddScoped<IWorkoutDbContext, WorkoutDbContext>();
+            services.AddScoped<IWorkoutEntryRepository, WorkoutEntryRepository>();       
         }
 
-        internal static async Task<IResult> GetWorkoutEntryById(int id, WorkoutDbContext db)
+        internal static async Task<List<WorkoutEntry>> GetAllWorkoutEntries(IWorkoutEntryRepository workoutEntryRepository)
         {
-            var workoutEntry = await db.WorkoutEntries.Include(a => a.Sets).FirstOrDefaultAsync(o => o.Id == id);
+            return await workoutEntryRepository.GetAllWorkoutEntriesAsync();
+        }
+
+        internal static async Task<IResult> GetWorkoutEntryById(int id, IWorkoutEntryRepository workoutEntryRepository)
+        {
+            var workoutEntry = await workoutEntryRepository.GetWorkEntryAsync(id);
 
             if (workoutEntry is null)
             {
@@ -31,18 +38,18 @@
             return Results.Ok(workoutEntry);
         }
 
-        internal static async Task<IResult> CreateWorkoutEntry(WorkoutEntry workoutEntry, WorkoutDbContext db)
+        internal static async Task<IResult> CreateWorkoutEntry(WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository)
         {
-            db.Add(workoutEntry);
+            workoutEntryRepository.CreateWorkoutEntry(workoutEntry);
 
-            await db.SaveChangesAsync();
+            await workoutEntryRepository.SaveChangesAsync();
 
             return Results.Created($"/workoutEntries/{workoutEntry.Id}", workoutEntry);
         }
 
-        internal static async Task<IResult> UpdateWorkoutEntry(int id, WorkoutEntry workoutEntry, WorkoutDbContext db)
+        internal static async Task<IResult> UpdateWorkoutEntry(int id, WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository)
         {
-            var workoutEntryFromDb = await db.WorkoutEntries.Include(a => a.Sets).FirstOrDefaultAsync(o => o.Id == id);
+            var workoutEntryFromDb = await workoutEntryRepository.GetWorkEntryAsync(id);
 
             if (workoutEntryFromDb is null)
             {
@@ -53,22 +60,22 @@
             workoutEntryFromDb.WorkoutDate = workoutEntry.WorkoutDate;
             workoutEntryFromDb.Sets = workoutEntry.Sets;
 
-            await db.SaveChangesAsync();
+            await workoutEntryRepository.SaveChangesAsync();
 
             return Results.NoContent();
         }
 
-        internal static async Task<IResult> DeleteWorkoutEntry(int id, WorkoutDbContext db)
+        internal static async Task<IResult> DeleteWorkoutEntry(int id, IWorkoutEntryRepository workoutEntryRepository)
         {
-            var workoutEntry = db.WorkoutEntries.Find(id);
+            var workoutEntry = await workoutEntryRepository.GetWorkEntryAsync(id);
 
             if (workoutEntry is null)
             {
                 return Results.NotFound();
             }
 
-            db.Remove(workoutEntry);
-            await db.SaveChangesAsync();
+            workoutEntryRepository.DeleteWorkoutEntry(workoutEntry);
+            await workoutEntryRepository.SaveChangesAsync();
 
             return Results.NoContent();
         }

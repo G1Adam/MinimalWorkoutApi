@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MinimalWorkoutApi;
+using MinimalWorkoutApi.DatabaseContext;
 using MinimalWorkoutApi.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<WorkoutDbContext>(opt => opt.UseInMemoryDatabase("WorkoutEntries"));
+builder.Services.RegisterWorkoutEntryServices();
 
 var app = builder.Build();
 
