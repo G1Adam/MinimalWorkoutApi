@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MinimalWorkoutApi.UnitTests
+﻿namespace MinimalWorkoutApi.UnitTests
 {
     internal class MinimalWorkoutApiTests
     {
