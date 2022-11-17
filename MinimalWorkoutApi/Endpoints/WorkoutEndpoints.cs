@@ -72,7 +72,7 @@
 
             if (workoutEntry is null)
             {
-                return Results.NotFound();
+                return Results.NotFound(id);
             }
 
             workoutEntryRepository.DeleteWorkoutEntry(workoutEntry);
