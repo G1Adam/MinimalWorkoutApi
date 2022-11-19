@@ -20,7 +20,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapWorkoutEndpoints();
+app.MapGroup("/workoutEntry").MapWorkoutEndpoints().WithOpenApi();
 
 app.Run();
 

@@ -1,20 +1,21 @@
 ﻿namespace MinimalWorkoutApi.Endpoints
 {
     using Microsoft.AspNetCore.Http.HttpResults;
-    using Microsoft.AspNetCore.Mvc;
     using MinimalWorkoutApi.DatabaseContext;
     using MinimalWorkoutApi.Models;
     using MinimalWorkoutApi.Repository;
 
     public static class WorkoutEndpoints
     {
-        public static void MapWorkoutEndpoints(this WebApplication app)
+        public static RouteGroupBuilder MapWorkoutEndpoints(this RouteGroupBuilder group)
         {
-            app.MapGet("/workoutEntry", GetAllWorkoutEntries).WithOpenApi();
-            app.MapGet("/workoutEntry/{id}", GetWorkoutEntryById).WithOpenApi();
-            app.MapPost("/workoutEntry", CreateWorkoutEntry).WithOpenApi();
-            app.MapPut("workoutEntry/{id}", UpdateWorkoutEntry).WithOpenApi();
-            app.MapDelete("workoutEntry/{id}", DeleteWorkoutEntry).WithOpenApi();
+            group.MapGet("/", GetAllWorkoutEntries);
+            group.MapGet("/{id}", GetWorkoutEntryById);
+            group.MapPost("/", CreateWorkoutEntry);
+            group.MapPut("/{id}", UpdateWorkoutEntry);
+            group.MapDelete("/{id}", DeleteWorkoutEntry);
+
+            return group;
         }
 
         public static void RegisterWorkoutEntryServices(this IServiceCollection services)
