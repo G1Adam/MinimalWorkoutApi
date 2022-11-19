@@ -1,5 +1,6 @@
 ﻿namespace MinimalWorkoutApi.Endpoints
 {
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.AspNetCore.Mvc;
     using MinimalWorkoutApi.DatabaseContext;
     using MinimalWorkoutApi.Models;
@@ -22,39 +23,39 @@
             services.AddScoped<IWorkoutEntryRepository, WorkoutEntryRepository>();       
         }
 
-        internal static async Task<List<WorkoutEntry>> GetAllWorkoutEntries(IWorkoutEntryRepository workoutEntryRepository)
+        internal static async Task<Ok<List<WorkoutEntry>>> GetAllWorkoutEntries(IWorkoutEntryRepository workoutEntryRepository)
         {
-            return await workoutEntryRepository.GetAllWorkoutEntriesAsync();
+            return TypedResults.Ok(await workoutEntryRepository.GetAllWorkoutEntriesAsync());
         }
 
-        internal static async Task<IResult> GetWorkoutEntryById(int id, IWorkoutEntryRepository workoutEntryRepository)
+        internal static async Task<Results<Ok<WorkoutEntry>, NotFound<int>>> GetWorkoutEntryById(int id, IWorkoutEntryRepository workoutEntryRepository)
         {
             var workoutEntry = await workoutEntryRepository.GetWorkEntryAsync(id);
 
             if (workoutEntry is null)
             {
-                return Results.NotFound();
+                return TypedResults.NotFound(id);
             }
 
-            return Results.Ok(workoutEntry);
+            return TypedResults.Ok(workoutEntry);
         }
 
-        internal static async Task<IResult> CreateWorkoutEntry(WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository)
+        internal static async Task<Created<WorkoutEntry>> CreateWorkoutEntry(WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository)
         {
             workoutEntryRepository.CreateWorkoutEntry(workoutEntry);
 
             await workoutEntryRepository.SaveChangesAsync();
 
-            return Results.Created($"/workoutEntries/{workoutEntry.Id}", workoutEntry);
+            return TypedResults.Created($"/workoutEntries/{workoutEntry.Id}", workoutEntry);
         }
 
-        internal static async Task<IResult> UpdateWorkoutEntry(int id, WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository)
+        internal static async Task<Results<NoContent, NotFound<int>>> UpdateWorkoutEntry(int id, WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository)
         {
             var workoutEntryFromDb = await workoutEntryRepository.GetWorkEntryAsync(id);
 
             if (workoutEntryFromDb is null)
             {
-                return Results.NotFound(id);
+                return TypedResults.NotFound(id);
             }
 
             workoutEntryFromDb.Name = workoutEntry.Name;
@@ -63,22 +64,22 @@
 
             await workoutEntryRepository.SaveChangesAsync();
 
-            return Results.NoContent();
+            return TypedResults.NoContent();
         }
 
-        internal static async Task<IResult> DeleteWorkoutEntry(int id, IWorkoutEntryRepository workoutEntryRepository)
+        internal static async Task<Results<NoContent, NotFound<int>>> DeleteWorkoutEntry(int id, IWorkoutEntryRepository workoutEntryRepository)
         {
             var workoutEntry = await workoutEntryRepository.GetWorkEntryAsync(id);
 
             if (workoutEntry is null)
             {
-                return Results.NotFound(id);
+                return TypedResults.NotFound(id);
             }
 
             workoutEntryRepository.DeleteWorkoutEntry(workoutEntry);
             await workoutEntryRepository.SaveChangesAsync();
 
-            return Results.NoContent();
+            return TypedResults.NoContent();
         }
     }
 }

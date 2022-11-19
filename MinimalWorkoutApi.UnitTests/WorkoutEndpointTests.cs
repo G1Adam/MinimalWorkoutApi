@@ -28,11 +28,14 @@
 
             //Act
             var result = await WorkoutEndpoints.GetWorkoutEntryById(workoutEntry.Id, mockWorkoutEntryRepository.Object);
-            var okObjectResult = (Ok<WorkoutEntry>)result;
 
             //Assert
-            Assert.Equal(200, okObjectResult.StatusCode);
-            Assert.Equal(workoutEntry, okObjectResult.Value);
+            Assert.IsType<Ok<WorkoutEntry>>(result.Result);
+
+            var okResult = (Ok<WorkoutEntry>)result.Result;
+
+            Assert.Equal(200, okResult.StatusCode);
+            Assert.Equal(workoutEntry, okResult.Value);
         }
 
         [Fact]
@@ -46,10 +49,14 @@
 
             //Act
             var result = await WorkoutEndpoints.GetWorkoutEntryById(workoutEntryId, mockWorkoutEntryRepository.Object);
-            var notFoundResult = (NotFound)result;
 
             //Assert
+            Assert.IsType<NotFound<int>>(result.Result);
+
+            var notFoundResult = (NotFound<int>)result.Result;
+
             Assert.Equal(404, notFoundResult.StatusCode);
+            Assert.Equal(workoutEntryId, notFoundResult.Value);
         }
 
         [Fact]
@@ -64,8 +71,10 @@
             var result = await WorkoutEndpoints.GetAllWorkoutEntries(mockWorkoutEntryRepository.Object);
 
             //Assert
-            Assert.NotEmpty(result);
-            Assert.Equal(workouts, result);
+            Assert.IsType<Ok<List<WorkoutEntry>>>(result);
+            Assert.Equal(200, result.StatusCode);
+            Assert.NotEmpty(result.Value);
+            Assert.Equal(workouts.Count, result.Value.Count);
         }
 
         [Fact]
@@ -78,7 +87,9 @@
             var result = await WorkoutEndpoints.GetAllWorkoutEntries(mockWorkoutEntryRepository.Object);
 
             //Assert
-            Assert.Empty(result);
+            Assert.IsType<Ok<List<WorkoutEntry>>>(result);
+            Assert.Equal(200, result.StatusCode);
+            Assert.Empty(result.Value);
         }
 
         [Fact]
@@ -90,13 +101,12 @@
 
             //Act
             var result = await WorkoutEndpoints.CreateWorkoutEntry(workout, mockWorkoutEntryRepository.Object);
-            var createResult = (Created<WorkoutEntry>)result;
 
             //Assert
-            Assert.NotNull(createResult);
-            Assert.Equal(201, createResult.StatusCode);
-            Assert.Equal(expectedLocationUrl, createResult.Location);
-            Assert.Equal(workout, createResult.Value);
+            Assert.NotNull(result);
+            Assert.Equal(201, result.StatusCode);
+            Assert.Equal(expectedLocationUrl, result.Location);
+            Assert.Equal(workout, result.Value);
 
             mockWorkoutEntryRepository.Verify(o => o.CreateWorkoutEntry(It.Is<WorkoutEntry>(o => o.Name == workout.Name && o.WorkoutDate == workout.WorkoutDate)), Times.Once());
             mockWorkoutEntryRepository.Verify(o => o.SaveChangesAsync(), Times.Once());
@@ -115,9 +125,12 @@
 
             //Act
             var result = await WorkoutEndpoints.UpdateWorkoutEntry(workoutEntryId, updatedWorkoutEntry, mockWorkoutEntryRepository.Object);
-            var notFoundResult = (NotFound<int>)result;
 
             //Assert
+            Assert.IsType<NotFound<int>>(result.Result);
+
+            var notFoundResult = (NotFound<int>)result.Result;
+
             Assert.Equal(404, notFoundResult.StatusCode);
             Assert.Equal(workoutEntryId, notFoundResult.Value);
         }
@@ -138,9 +151,12 @@
 
             //Act
             var result = await WorkoutEndpoints.UpdateWorkoutEntry(originalWorkout.Id, updatedWorkout, mockWorkoutEntryRepository.Object);
-            var noContentResult = (NoContent)result;
 
             //Assert
+            Assert.IsType<NoContent>(result.Result);
+
+            var noContentResult = (NoContent)result.Result;
+
             Assert.NotNull(noContentResult);
             Assert.Equal(204, noContentResult.StatusCode);
 
@@ -158,9 +174,12 @@
 
             //Act
             var result = await WorkoutEndpoints.DeleteWorkoutEntry(workoutEntryId, mockWorkoutEntryRepository.Object);
-            var notFoundResult = (NotFound<int>)result;
 
             //Assert
+            Assert.IsType<NotFound<int>>(result.Result);
+
+            var notFoundResult = (NotFound<int>)result.Result;
+
             Assert.Equal(404, notFoundResult.StatusCode);
             Assert.Equal(workoutEntryId, notFoundResult.Value);
         }
@@ -175,10 +194,12 @@
 
             //Act
             var result = await WorkoutEndpoints.DeleteWorkoutEntry(originalWorkout.Id, mockWorkoutEntryRepository.Object);
-            var noContentResult = (NoContent)result;
 
             //Assert
-            //Assert
+            Assert.IsType<NoContent>(result.Result);
+
+            var noContentResult = (NoContent)result.Result;
+
             Assert.NotNull(noContentResult);
             Assert.Equal(204, noContentResult.StatusCode);
 
