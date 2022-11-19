@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalWorkoutApi", "Minima
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C9AB2E50-7908-4C04-A990-EB976119CC7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalWorkoutApi.UnitTests", "MinimalWorkoutApi.UnitTests\MinimalWorkoutApi.UnitTests.csproj", "{90575527-436E-4F8B-B88A-3F8C6BEC65D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalWorkoutApi.UnitTests", "MinimalWorkoutApi.UnitTests\MinimalWorkoutApi.UnitTests.csproj", "{90575527-436E-4F8B-B88A-3F8C6BEC65D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{566D1BFA-DCCB-4DAE-BE94-AED4380FE2EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +30,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{3443F599-BAA5-4545-AF27-E19062D50EBA} = {566D1BFA-DCCB-4DAE-BE94-AED4380FE2EE}
 		{90575527-436E-4F8B-B88A-3F8C6BEC65D0} = {C9AB2E50-7908-4C04-A990-EB976119CC7C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
