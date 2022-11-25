@@ -18,12 +18,6 @@
             return group;
         }
 
-        public static void RegisterWorkoutEntryServices(this IServiceCollection services)
-        {
-            services.AddScoped<IWorkoutDbContext, WorkoutDbContext>();
-            services.AddScoped<IWorkoutEntryRepository, WorkoutEntryRepository>();       
-        }
-
         internal static async Task<Ok<List<WorkoutEntry>>> GetAllWorkoutEntries(IWorkoutEntryRepository workoutEntryRepository)
         {
             return TypedResults.Ok(await workoutEntryRepository.GetAllWorkoutEntriesAsync());

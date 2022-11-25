@@ -14,7 +14,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<InternalsVisibleTo Include="MinimalWorkoutApi.UnitTests"/>
+		<InternalsVisibleTo Include="MinimalWorkoutApi.UnitTests" />
 	</ItemGroup>
 
 </Project>
