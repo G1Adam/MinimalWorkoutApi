@@ -28,7 +28,7 @@ namespace MinimalWorkoutApi.Endpoints
 
             await workoutEntryRepository.SaveChangesAsync();
 
-            return TypedResults.Created($"workoutEntry/{workoutId}/set/{set.Id}", set);
+            return TypedResults.Created($"/workoutEntry/{workoutId}/set/{set.Id}", set);
         }
 
         internal static async Task<Results<NotFound<int>, NoContent>> UpdateSet(int workoutId, Set updatedSet, IWorkoutEntryRepository workoutEntryRepository)

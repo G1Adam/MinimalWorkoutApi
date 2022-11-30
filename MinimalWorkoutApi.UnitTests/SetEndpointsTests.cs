@@ -1,13 +1,13 @@
-﻿using AutoFixture;
-using Microsoft.AspNetCore.Http.HttpResults;
-using MinimalWorkoutApi.Endpoints;
-using MinimalWorkoutApi.Models;
-using MinimalWorkoutApi.Repository;
-using Moq;
-using Xunit;
-
-namespace MinimalWorkoutApi.UnitTests
+﻿namespace MinimalWorkoutApi.UnitTests
 {
+    using AutoFixture;
+    using Microsoft.AspNetCore.Http.HttpResults;
+    using MinimalWorkoutApi.Endpoints;
+    using MinimalWorkoutApi.Models;
+    using MinimalWorkoutApi.Repository;
+    using Moq;
+    using Xunit;
+
     public class SetEndpointsTests
     {
         private readonly Fixture fixture;
@@ -33,7 +33,7 @@ namespace MinimalWorkoutApi.UnitTests
             var result = await SetEndpoints.CreateSet(workoutEntryId, set, mockWorkoutEntryRepository.Object);
 
             //Assert
-            Assert.IsType<NotFound<int>>(result);
+            Assert.IsType<NotFound<int>>(result.Result);
 
             var notFoundResult = (NotFound<int>)result.Result;
 
@@ -46,15 +46,23 @@ namespace MinimalWorkoutApi.UnitTests
         public async Task CreateSet_When_SetExists_Should_ReturnCreatedResult()
         {
             //Arrange
-            int workoutId = 1;
+            int workoutEntryId = 1;
             var set = fixture.Create<Set>();
-            var expectLocationUrl = $"/workoutEntry/{workoutId}/set/{set.Id}";
+            var expectLocationUrl = $"/workoutEntry/{workoutEntryId}/set/{set.Id}";
+
+            var workoutEntry = new WorkoutEntry
+            {
+                Id = workoutEntryId,
+                WorkoutDate = fixture.Create<DateTime>()
+            };
+
+            mockWorkoutEntryRepository.Setup(o => o.GetWorkEntryAsync(workoutEntryId)).ReturnsAsync(workoutEntry);
 
             //Act
-            var result = await SetEndpoints.CreateSet(workoutId, set, mockWorkoutEntryRepository.Object);
+            var result = await SetEndpoints.CreateSet(workoutEntryId, set, mockWorkoutEntryRepository.Object);
 
             //Assert
-            Assert.IsType<Created<Set>>(result);
+            Assert.IsType<Created<Set>>(result.Result);
 
             var createdResult = (Created<Set>)result.Result;
 
@@ -78,7 +86,7 @@ namespace MinimalWorkoutApi.UnitTests
             //Act
             var result = await SetEndpoints.UpdateSet(workoutId, set, mockWorkoutEntryRepository.Object);
 
-            Assert.IsType<NotFound<int>>(result);
+            Assert.IsType<NotFound<int>>(result.Result);
 
             var notFoundResult = (NotFound<int>)result.Result;
 
@@ -117,14 +125,12 @@ namespace MinimalWorkoutApi.UnitTests
             var result = await SetEndpoints.UpdateSet(workoutEntryId, updatedSet, mockWorkoutEntryRepository.Object);
 
             //Assert
-            Assert.IsType<NotFound<int>>(result);
+            Assert.IsType<NotFound<int>>(result.Result);
 
             var notFoundResult = (NotFound<int>)result.Result;
 
             Assert.Equal(404, notFoundResult.StatusCode);
             Assert.Equal(updatedSetId, notFoundResult.Value);
-
-            mockWorkoutEntryRepository.Verify(o => o.SaveChangesAsync(), Times.Once());
         }
 
         [Fact]
@@ -157,7 +163,7 @@ namespace MinimalWorkoutApi.UnitTests
             var result = await SetEndpoints.UpdateSet(workoutEntryId, updatedSet, mockWorkoutEntryRepository.Object);
 
             //Assert
-            Assert.IsType<NoContent>(result);
+            Assert.IsType<NoContent>(result.Result);
 
             var noContentResult = (NoContent)result.Result;
 
@@ -180,7 +186,7 @@ namespace MinimalWorkoutApi.UnitTests
             //Act
             var result = await SetEndpoints.DeleteSet(workoutId, setId, mockWorkoutEntryRepository.Object);
 
-            Assert.IsType<NotFound<int>>(result);
+            Assert.IsType<NotFound<int>>(result.Result);
 
             var notFoundResult = (NotFound<int>)result.Result;
 
@@ -215,7 +221,7 @@ namespace MinimalWorkoutApi.UnitTests
             var result = await SetEndpoints.DeleteSet(workoutEntryId, requestedSetId, mockWorkoutEntryRepository.Object);
 
             //Assert
-            Assert.IsType<NotFound<int>>(result);
+            Assert.IsType<NotFound<int>>(result.Result);
 
             var notFoundResult = (NotFound<int>)result.Result;
 
@@ -249,7 +255,7 @@ namespace MinimalWorkoutApi.UnitTests
             var result = await SetEndpoints.DeleteSet(workoutEntryId, setId, mockWorkoutEntryRepository.Object);
 
             //Assert
-            Assert.IsType<NoContent>(result);
+            Assert.IsType<NoContent>(result.Result);
 
             var noContentResult = (NoContent)result.Result;
 
