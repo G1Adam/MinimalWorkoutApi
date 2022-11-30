@@ -9,8 +9,8 @@ namespace MinimalWorkoutApi.Endpoints
         public static RouteGroupBuilder MapSetEndpoints(this RouteGroupBuilder group)
         {
             group.MapPost("/", CreateSet);
-            group.MapPut("/{id}", UpdateSet);
-            group.MapDelete("/{id}", DeleteSet);
+            group.MapPut("/", UpdateSet);
+            group.MapDelete("/{setId}", DeleteSet);
 
             return group;
         }
