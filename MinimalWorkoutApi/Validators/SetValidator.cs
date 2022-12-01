@@ -9,7 +9,7 @@
         { 
             RuleFor(set => set.Repetitions).NotEmpty();
             RuleFor(set => set.Weight).NotEmpty();
-            RuleFor(set => set.ExerciseName).NotNull().MaximumLength(150);
+            RuleFor(set => set.ExerciseName).NotEmpty().MaximumLength(150);
         }
     }
 }

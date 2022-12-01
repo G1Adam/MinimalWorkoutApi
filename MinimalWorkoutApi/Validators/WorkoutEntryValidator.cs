@@ -7,7 +7,7 @@
     {
         public WorkoutEntryValidator() 
         {
-            RuleFor(wo => wo.Name).NotNull().MaximumLength(300);
+            RuleFor(wo => wo.Name).NotEmpty().MaximumLength(300);
             RuleFor(wo => wo.WorkoutDate).NotEmpty();
         }
     }
