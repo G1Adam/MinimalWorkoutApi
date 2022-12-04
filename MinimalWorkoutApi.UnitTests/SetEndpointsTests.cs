@@ -1,6 +1,8 @@
 ﻿namespace MinimalWorkoutApi.UnitTests
 {
     using AutoFixture;
+    using FluentValidation;
+    using FluentValidation.Results;
     using Microsoft.AspNetCore.Http.HttpResults;
     using MinimalWorkoutApi.Endpoints;
     using MinimalWorkoutApi.Models;
@@ -12,11 +14,38 @@
     {
         private readonly Fixture fixture;
         private readonly Mock<IWorkoutEntryRepository> mockWorkoutEntryRepository;
+        private readonly Mock<IValidator<Set>> mockSetValidator;
 
         public SetEndpointsTests()
         {
             fixture = new Fixture();
             mockWorkoutEntryRepository = new Mock<IWorkoutEntryRepository>();
+            mockSetValidator = new Mock<IValidator<Set>>();
+        }
+
+        [Fact]
+        public async Task CreateSet_When_SetIsInvalid_Should_ReturnBadRequestWithSet()
+        {
+            //Arrange
+            int workoutEntryId = 1;
+            Set invalidSet = new();
+            var validationFailures = fixture.CreateMany<ValidationFailure>(3).ToList();
+            var validationResult = fixture.Build<ValidationResult>()
+                .With(o => o.Errors, validationFailures)
+                .Create();
+
+            mockSetValidator.Setup(o => o.Validate(invalidSet)).Returns(validationResult);
+
+            //Act
+            var result = await SetEndpoints.CreateSet(workoutEntryId, invalidSet, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
+
+            //Assert
+            Assert.IsType<BadRequest<Set>>(result.Result);
+
+            var badRequestResult = (BadRequest<Set>)result.Result;
+
+            Assert.Equal(400, badRequestResult.StatusCode);
+            Assert.Equal(invalidSet, badRequestResult.Value);
         }
 
         [Fact]
@@ -29,8 +58,14 @@
 
             mockWorkoutEntryRepository.Setup(o => o.GetWorkEntryAsync(workoutEntryId)).ReturnsAsync(workoutEntry);
 
+            var validationResult = fixture.Build<ValidationResult>()
+                .With(o => o.Errors, new List<ValidationFailure>())
+                .Create();
+
+            mockSetValidator.Setup(o => o.Validate(set)).Returns(validationResult);
+
             //Act
-            var result = await SetEndpoints.CreateSet(workoutEntryId, set, mockWorkoutEntryRepository.Object);
+            var result = await SetEndpoints.CreateSet(workoutEntryId, set, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
 
             //Assert
             Assert.IsType<NotFound<int>>(result.Result);
@@ -58,8 +93,14 @@
 
             mockWorkoutEntryRepository.Setup(o => o.GetWorkEntryAsync(workoutEntryId)).ReturnsAsync(workoutEntry);
 
+            var validationResult = fixture.Build<ValidationResult>()
+                .With(o => o.Errors, new List<ValidationFailure>())
+                .Create();
+
+            mockSetValidator.Setup(o => o.Validate(set)).Returns(validationResult);
+
             //Act
-            var result = await SetEndpoints.CreateSet(workoutEntryId, set, mockWorkoutEntryRepository.Object);
+            var result = await SetEndpoints.CreateSet(workoutEntryId, set, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
 
             //Assert
             Assert.IsType<Created<Set>>(result.Result);
@@ -83,8 +124,14 @@
 
             mockWorkoutEntryRepository.Setup(o => o.GetWorkEntryAsync(It.Is<int>(i => i == workoutId))).ReturnsAsync(workoutEntry);
 
+            var validationResult = fixture.Build<ValidationResult>()
+                .With(o => o.Errors, new List<ValidationFailure>())
+                .Create();
+
+            mockSetValidator.Setup(o => o.Validate(set)).Returns(validationResult);
+
             //Act
-            var result = await SetEndpoints.UpdateSet(workoutId, set, mockWorkoutEntryRepository.Object);
+            var result = await SetEndpoints.UpdateSet(workoutId, set, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
 
             Assert.IsType<NotFound<int>>(result.Result);
 
@@ -121,8 +168,14 @@
 
             mockWorkoutEntryRepository.Setup(o => o.GetWorkEntryAsync(It.Is<int>(o => o == workoutEntryId))).ReturnsAsync(workoutEntry);
 
+            var validationResult = fixture.Build<ValidationResult>()
+                .With(o => o.Errors, new List<ValidationFailure>())
+                .Create();
+
+            mockSetValidator.Setup(o => o.Validate(updatedSet)).Returns(validationResult);
+
             //Act
-            var result = await SetEndpoints.UpdateSet(workoutEntryId, updatedSet, mockWorkoutEntryRepository.Object);
+            var result = await SetEndpoints.UpdateSet(workoutEntryId, updatedSet, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
 
             //Assert
             Assert.IsType<NotFound<int>>(result.Result);
@@ -159,8 +212,14 @@
 
             mockWorkoutEntryRepository.Setup(o => o.GetWorkEntryAsync(It.Is<int>(o => o == workoutEntryId))).ReturnsAsync(workoutEntry);
 
+            var validationResult = fixture.Build<ValidationResult>()
+                .With(o => o.Errors, new List<ValidationFailure>())
+                .Create();
+
+            mockSetValidator.Setup(o => o.Validate(updatedSet)).Returns(validationResult);
+
             //Act
-            var result = await SetEndpoints.UpdateSet(workoutEntryId, updatedSet, mockWorkoutEntryRepository.Object);
+            var result = await SetEndpoints.UpdateSet(workoutEntryId, updatedSet, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
 
             //Assert
             Assert.IsType<NoContent>(result.Result);

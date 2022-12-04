@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Http.HttpResults;
 using MinimalWorkoutApi.Models;
 using MinimalWorkoutApi.Repository;
+using MinimalWorkoutApi.Validators;
 
 namespace MinimalWorkoutApi.Endpoints
 {
@@ -15,8 +17,15 @@ namespace MinimalWorkoutApi.Endpoints
             return group;
         }
 
-        internal static async Task<Results<NotFound<int>, Created<Set>>> CreateSet(int workoutId, Set set, IWorkoutEntryRepository workoutEntryRepository)
+        internal static async Task<Results<BadRequest<Set>, NotFound<int>, Created<Set>>> CreateSet(int workoutId, Set set, IWorkoutEntryRepository workoutEntryRepository, IValidator<Set> setValidator)
         {
+            var validationResult = setValidator.Validate(set);
+
+            if (!validationResult.IsValid)
+            {
+                return TypedResults.BadRequest(set);
+            }
+
             var workoutEntry = await workoutEntryRepository.GetWorkEntryAsync(workoutId);
 
             if(workoutEntry is null)
@@ -31,8 +40,15 @@ namespace MinimalWorkoutApi.Endpoints
             return TypedResults.Created($"/workoutEntry/{workoutId}/set/{set.Id}", set);
         }
 
-        internal static async Task<Results<NotFound<int>, NoContent>> UpdateSet(int workoutId, Set updatedSet, IWorkoutEntryRepository workoutEntryRepository)
+        internal static async Task<Results<BadRequest<Set>, NotFound<int>, NoContent>> UpdateSet(int workoutId, Set updatedSet, IWorkoutEntryRepository workoutEntryRepository, IValidator<Set> setValidator)
         {
+            var validationResult = setValidator.Validate(updatedSet);
+
+            if (!validationResult.IsValid)
+            {
+                return TypedResults.BadRequest(updatedSet);
+            }
+
             var workoutEntry = await workoutEntryRepository.GetWorkEntryAsync(workoutId);
 
             if (workoutEntry is null)
