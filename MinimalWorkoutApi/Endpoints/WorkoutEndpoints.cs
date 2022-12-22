@@ -1,5 +1,6 @@
 ﻿namespace MinimalWorkoutApi.Endpoints
 {
+    using FluentValidation;
     using Microsoft.AspNetCore.Http.HttpResults;
     using MinimalWorkoutApi.DatabaseContext;
     using MinimalWorkoutApi.Models;
@@ -35,8 +36,15 @@
             return TypedResults.Ok(workoutEntry);
         }
 
-        internal static async Task<Created<WorkoutEntry>> CreateWorkoutEntry(WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository)
+        internal static async Task<Results<BadRequest<WorkoutEntry>, Created<WorkoutEntry>>> CreateWorkoutEntry(WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository, IValidator<WorkoutEntry> workoutEntryValidator)
         {
+            var validationResult = workoutEntryValidator.Validate(workoutEntry);
+
+            if (!validationResult.IsValid)
+            {
+                return TypedResults.BadRequest(workoutEntry);
+            }
+
             workoutEntryRepository.CreateWorkoutEntry(workoutEntry);
 
             await workoutEntryRepository.SaveChangesAsync();

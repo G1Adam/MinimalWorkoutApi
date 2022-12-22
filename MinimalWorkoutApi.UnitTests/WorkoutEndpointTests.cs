@@ -7,15 +7,19 @@
     using MinimalWorkoutApi.Repository;
     using MinimalWorkoutApi.Models;
     using Microsoft.AspNetCore.Http.HttpResults;
+    using FluentValidation;
+    using FluentValidation.Results;
 
-    public class MinimalWorkoutApiTests
+    public class WorkoutEndpointTests
     {
-        private readonly Mock<IWorkoutEntryRepository> mockWorkoutEntryRepository;
         private readonly Fixture fixture = new Fixture();
+        private readonly Mock<IWorkoutEntryRepository> mockWorkoutEntryRepository;
+        private readonly Mock<IValidator<WorkoutEntry>> mockWorkoutEntryValidator;
 
-        public MinimalWorkoutApiTests()
+        public WorkoutEndpointTests()
         {
             mockWorkoutEntryRepository= new Mock<IWorkoutEntryRepository>();
+            mockWorkoutEntryValidator = new Mock<IValidator<WorkoutEntry>>();
         }
 
         [Fact]
@@ -93,20 +97,61 @@
         }
 
         [Fact]
+        public async Task CreateWorkoutEntry_When_WorkoutEntryIsInvalid_Should_ReturnBadRequestWithWorkoutEntry()
+        {
+            //Arrange
+            var invalidWorkout = new WorkoutEntry
+            {
+                WorkoutDate = DateTime.MinValue,
+                Name = string.Empty,
+                Sets = new List<Set>
+                {
+                    new Set()
+                }
+            };
+
+            var validationFailures = fixture.CreateMany<ValidationFailure>(3).ToList();
+            var validationResult = fixture.Build<ValidationResult>()
+                .With(o => o.Errors, validationFailures)
+                .Create();
+
+            mockWorkoutEntryValidator.Setup(o => o.Validate(It.Is<WorkoutEntry>(o => o.Name == invalidWorkout.Name && o.WorkoutDate == invalidWorkout.WorkoutDate))).Returns(validationResult);
+
+            //Act
+            var result = await WorkoutEndpoints.CreateWorkoutEntry(invalidWorkout, mockWorkoutEntryRepository.Object, mockWorkoutEntryValidator.Object);
+
+            //Assert
+            Assert.IsType<BadRequest<WorkoutEntry>>(result.Result);
+
+            var badRequestResult = (BadRequest<WorkoutEntry>)result.Result;
+
+            Assert.Equal(400, badRequestResult.StatusCode);
+            Assert.Equal(invalidWorkout, badRequestResult.Value);
+        }
+
+        [Fact]
         public async Task CreateWorkoutEntry_When_ValidWorkoutIsSent_Should_ReturnWorkoutAndCreatedResult()
         {
             //Arrange
             var workout = fixture.Create<WorkoutEntry>();
             var expectedLocationUrl = $"/workoutEntries/{workout.Id}";
 
+            var validationResult = fixture.Build<ValidationResult>()
+                .With(o => o.Errors, new List<ValidationFailure>())
+                .Create();
+
+            mockWorkoutEntryValidator.Setup(o => o.Validate(It.Is<WorkoutEntry>(o => o.Name == workout.Name && o.WorkoutDate == workout.WorkoutDate))).Returns(validationResult);
+
             //Act
-            var result = await WorkoutEndpoints.CreateWorkoutEntry(workout, mockWorkoutEntryRepository.Object);
+            var result = await WorkoutEndpoints.CreateWorkoutEntry(workout, mockWorkoutEntryRepository.Object, mockWorkoutEntryValidator.Object);
 
             //Assert
-            Assert.NotNull(result);
-            Assert.Equal(201, result.StatusCode);
-            Assert.Equal(expectedLocationUrl, result.Location);
-            Assert.Equal(workout, result.Value);
+            Assert.IsType<Created<WorkoutEntry>>(result.Result);
+
+            var createdResult = (Created<WorkoutEntry>)result.Result;
+            Assert.Equal(201, createdResult.StatusCode);
+            Assert.Equal(expectedLocationUrl, createdResult.Location);
+            Assert.Equal(workout, createdResult.Value);
 
             mockWorkoutEntryRepository.Verify(o => o.CreateWorkoutEntry(It.Is<WorkoutEntry>(o => o.Name == workout.Name && o.WorkoutDate == workout.WorkoutDate)), Times.Once());
             mockWorkoutEntryRepository.Verify(o => o.SaveChangesAsync(), Times.Once());

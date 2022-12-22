@@ -56,5 +56,20 @@
             //Assert
             Assert.False(result.IsValid);
         }
+
+        [Fact]
+        public void Validate_When_WorkoutHasInvalidSets_Should_ReturnIsValidFalse()
+        {
+            //Arrange
+            Set invalidSet = new();
+
+            var workoutEntry = fixture.Build<WorkoutEntry>().With(o => o.Sets, new List<Set> { invalidSet }).Create();
+
+            //Act
+            var result = sut.Validate(workoutEntry);
+
+            //Assert
+            Assert.False(result.IsValid);
+        }
     }
 }
