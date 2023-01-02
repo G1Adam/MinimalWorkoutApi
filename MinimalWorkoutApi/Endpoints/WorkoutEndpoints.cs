@@ -5,6 +5,7 @@
     using MinimalWorkoutApi.DatabaseContext;
     using MinimalWorkoutApi.Models;
     using MinimalWorkoutApi.Repository;
+    using MinimalWorkoutApi.Validators;
 
     public static class WorkoutEndpoints
     {
@@ -52,8 +53,15 @@
             return TypedResults.Created($"/workoutEntries/{workoutEntry.Id}", workoutEntry);
         }
 
-        internal static async Task<Results<NoContent, NotFound<int>>> UpdateWorkoutEntry(int id, WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository)
+        internal static async Task<Results<BadRequest<WorkoutEntry>, NoContent, NotFound<int>>> UpdateWorkoutEntry(int id, WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository, IValidator<WorkoutEntry> workoutEntryValidator)
         {
+            var validationResult = workoutEntryValidator.Validate(workoutEntry);
+
+            if (!validationResult.IsValid)
+            {
+                return TypedResults.BadRequest(workoutEntry);
+            }
+
             var workoutEntryFromDb = await workoutEntryRepository.GetWorkEntryAsync(id);
 
             if (workoutEntryFromDb is null)

@@ -158,6 +158,42 @@
         }
 
         [Fact]
+        public async Task UpdateWorkoutEntry_When_WorkoutEntryIsInvalid_Should_ReturnBadRequestResult()
+        {
+            //Arrange
+            int workoutEntryId = 1;
+
+            var invalidWorkout = new WorkoutEntry
+            {
+                Id = workoutEntryId,
+                WorkoutDate = DateTime.MinValue,
+                Name = string.Empty,
+                Sets = new List<Set>
+                {
+                    new Set()
+                }
+            };
+
+            var validationFailures = fixture.CreateMany<ValidationFailure>(3).ToList();
+            var validationResult = fixture.Build<ValidationResult>()
+                .With(o => o.Errors, validationFailures)
+                .Create();
+
+            mockWorkoutEntryValidator.Setup(o => o.Validate(It.Is<WorkoutEntry>(o => o.Name == invalidWorkout.Name && o.WorkoutDate == invalidWorkout.WorkoutDate))).Returns(validationResult);
+
+            //Act
+            var result = await WorkoutEndpoints.UpdateWorkoutEntry(workoutEntryId, invalidWorkout, mockWorkoutEntryRepository.Object, mockWorkoutEntryValidator.Object);
+
+            //Assert
+            Assert.IsType<BadRequest<WorkoutEntry>>(result.Result);
+
+            var badRequestResult = (BadRequest<WorkoutEntry>)result.Result;
+
+            Assert.Equal(400, badRequestResult.StatusCode);
+            Assert.Equal(invalidWorkout, badRequestResult.Value);
+        }
+
+        [Fact]
         public async Task UpdateWorkoutEntry_When_WorkoutDoesNotExist_Should_ReturnNotFoundResult()
         {
             //Arrange
@@ -168,8 +204,14 @@
 
             var updatedWorkoutEntry = fixture.Create<WorkoutEntry>();
 
+            var validationResult = fixture.Build<ValidationResult>()
+                .With(o => o.Errors, new List<ValidationFailure>())
+                .Create();
+
+            mockWorkoutEntryValidator.Setup(o => o.Validate(It.Is<WorkoutEntry>(o => o.Name == updatedWorkoutEntry.Name && o.WorkoutDate == updatedWorkoutEntry.WorkoutDate))).Returns(validationResult);
+
             //Act
-            var result = await WorkoutEndpoints.UpdateWorkoutEntry(workoutEntryId, updatedWorkoutEntry, mockWorkoutEntryRepository.Object);
+            var result = await WorkoutEndpoints.UpdateWorkoutEntry(workoutEntryId, updatedWorkoutEntry, mockWorkoutEntryRepository.Object, mockWorkoutEntryValidator.Object);
 
             //Assert
             Assert.IsType<NotFound<int>>(result.Result);
@@ -188,14 +230,20 @@
 
             mockWorkoutEntryRepository.Setup(o => o.GetWorkEntryAsync(It.Is<int>(i => i == originalWorkout.Id))).ReturnsAsync(originalWorkout);
 
-            var updatedWorkout = fixture.Build<WorkoutEntry>()
+            var updatedWorkoutEntry = fixture.Build<WorkoutEntry>()
                 .With(o => o.Id, originalWorkout.Id)
                 .With(o => o.Name, fixture.Create<string>())
                 .With(o => o.Sets, fixture.CreateMany<Set>(3).ToList())
                 .Create();
 
+            var validationResult = fixture.Build<ValidationResult>()
+                .With(o => o.Errors, new List<ValidationFailure>())
+                .Create();
+
+            mockWorkoutEntryValidator.Setup(o => o.Validate(It.Is<WorkoutEntry>(o => o.Name == updatedWorkoutEntry.Name && o.WorkoutDate == updatedWorkoutEntry.WorkoutDate))).Returns(validationResult);
+
             //Act
-            var result = await WorkoutEndpoints.UpdateWorkoutEntry(originalWorkout.Id, updatedWorkout, mockWorkoutEntryRepository.Object);
+            var result = await WorkoutEndpoints.UpdateWorkoutEntry(originalWorkout.Id, updatedWorkoutEntry, mockWorkoutEntryRepository.Object, mockWorkoutEntryValidator.Object);
 
             //Assert
             Assert.IsType<NoContent>(result.Result);
