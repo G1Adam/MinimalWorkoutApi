@@ -115,7 +115,7 @@
                 .With(o => o.Errors, validationFailures)
                 .Create();
 
-            mockWorkoutEntryValidator.Setup(o => o.Validate(It.Is<WorkoutEntry>(o => o.Name == invalidWorkout.Name && o.WorkoutDate == invalidWorkout.WorkoutDate))).Returns(validationResult);
+            mockWorkoutEntryValidator.Setup(o => o.ValidateAsync(It.Is<WorkoutEntry>(o => o.Name == invalidWorkout.Name && o.WorkoutDate == invalidWorkout.WorkoutDate), default)).ReturnsAsync(validationResult);
 
             //Act
             var result = await WorkoutEndpoints.CreateWorkoutEntry(invalidWorkout, mockWorkoutEntryRepository.Object, mockWorkoutEntryValidator.Object);
@@ -140,7 +140,7 @@
                 .With(o => o.Errors, new List<ValidationFailure>())
                 .Create();
 
-            mockWorkoutEntryValidator.Setup(o => o.Validate(It.Is<WorkoutEntry>(o => o.Name == workout.Name && o.WorkoutDate == workout.WorkoutDate))).Returns(validationResult);
+            mockWorkoutEntryValidator.Setup(o => o.ValidateAsync(It.Is<WorkoutEntry>(o => o.Name == workout.Name && o.WorkoutDate == workout.WorkoutDate), default)).ReturnsAsync(validationResult);
 
             //Act
             var result = await WorkoutEndpoints.CreateWorkoutEntry(workout, mockWorkoutEntryRepository.Object, mockWorkoutEntryValidator.Object);
@@ -179,7 +179,7 @@
                 .With(o => o.Errors, validationFailures)
                 .Create();
 
-            mockWorkoutEntryValidator.Setup(o => o.Validate(It.Is<WorkoutEntry>(o => o.Name == invalidWorkout.Name && o.WorkoutDate == invalidWorkout.WorkoutDate))).Returns(validationResult);
+            mockWorkoutEntryValidator.Setup(o => o.ValidateAsync(It.Is<WorkoutEntry>(o => o.Name == invalidWorkout.Name && o.WorkoutDate == invalidWorkout.WorkoutDate), default)).ReturnsAsync(validationResult);
 
             //Act
             var result = await WorkoutEndpoints.UpdateWorkoutEntry(workoutEntryId, invalidWorkout, mockWorkoutEntryRepository.Object, mockWorkoutEntryValidator.Object);
@@ -208,7 +208,7 @@
                 .With(o => o.Errors, new List<ValidationFailure>())
                 .Create();
 
-            mockWorkoutEntryValidator.Setup(o => o.Validate(It.Is<WorkoutEntry>(o => o.Name == updatedWorkoutEntry.Name && o.WorkoutDate == updatedWorkoutEntry.WorkoutDate))).Returns(validationResult);
+            mockWorkoutEntryValidator.Setup(o => o.ValidateAsync(It.Is<WorkoutEntry>(o => o.Name == updatedWorkoutEntry.Name && o.WorkoutDate == updatedWorkoutEntry.WorkoutDate), default)).ReturnsAsync(validationResult);
 
             //Act
             var result = await WorkoutEndpoints.UpdateWorkoutEntry(workoutEntryId, updatedWorkoutEntry, mockWorkoutEntryRepository.Object, mockWorkoutEntryValidator.Object);
@@ -240,7 +240,7 @@
                 .With(o => o.Errors, new List<ValidationFailure>())
                 .Create();
 
-            mockWorkoutEntryValidator.Setup(o => o.Validate(It.Is<WorkoutEntry>(o => o.Name == updatedWorkoutEntry.Name && o.WorkoutDate == updatedWorkoutEntry.WorkoutDate))).Returns(validationResult);
+            mockWorkoutEntryValidator.Setup(o => o.ValidateAsync(It.Is<WorkoutEntry>(o => o.Name == updatedWorkoutEntry.Name && o.WorkoutDate == updatedWorkoutEntry.WorkoutDate), default)).ReturnsAsync(validationResult);
 
             //Act
             var result = await WorkoutEndpoints.UpdateWorkoutEntry(originalWorkout.Id, updatedWorkoutEntry, mockWorkoutEntryRepository.Object, mockWorkoutEntryValidator.Object);

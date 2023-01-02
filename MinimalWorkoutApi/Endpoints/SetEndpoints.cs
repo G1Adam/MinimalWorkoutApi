@@ -19,7 +19,7 @@ namespace MinimalWorkoutApi.Endpoints
 
         internal static async Task<Results<BadRequest<Set>, NotFound<int>, Created<Set>>> CreateSet(int workoutId, Set set, IWorkoutEntryRepository workoutEntryRepository, IValidator<Set> setValidator)
         {
-            var validationResult = setValidator.Validate(set);
+            var validationResult = await setValidator.ValidateAsync(set);
 
             if (!validationResult.IsValid)
             {
@@ -42,7 +42,7 @@ namespace MinimalWorkoutApi.Endpoints
 
         internal static async Task<Results<BadRequest<Set>, NotFound<int>, NoContent>> UpdateSet(int workoutId, Set updatedSet, IWorkoutEntryRepository workoutEntryRepository, IValidator<Set> setValidator)
         {
-            var validationResult = setValidator.Validate(updatedSet);
+            var validationResult = await setValidator.ValidateAsync(updatedSet);
 
             if (!validationResult.IsValid)
             {

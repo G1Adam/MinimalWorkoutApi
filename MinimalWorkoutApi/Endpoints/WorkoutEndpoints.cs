@@ -39,7 +39,7 @@
 
         internal static async Task<Results<BadRequest<WorkoutEntry>, Created<WorkoutEntry>>> CreateWorkoutEntry(WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository, IValidator<WorkoutEntry> workoutEntryValidator)
         {
-            var validationResult = workoutEntryValidator.Validate(workoutEntry);
+            var validationResult = await workoutEntryValidator.ValidateAsync(workoutEntry);
 
             if (!validationResult.IsValid)
             {
@@ -55,7 +55,7 @@
 
         internal static async Task<Results<BadRequest<WorkoutEntry>, NoContent, NotFound<int>>> UpdateWorkoutEntry(int id, WorkoutEntry workoutEntry, IWorkoutEntryRepository workoutEntryRepository, IValidator<WorkoutEntry> workoutEntryValidator)
         {
-            var validationResult = workoutEntryValidator.Validate(workoutEntry);
+            var validationResult = await workoutEntryValidator.ValidateAsync(workoutEntry);
 
             if (!validationResult.IsValid)
             {

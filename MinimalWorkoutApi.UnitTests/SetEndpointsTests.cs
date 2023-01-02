@@ -34,7 +34,7 @@
                 .With(o => o.Errors, validationFailures)
                 .Create();
 
-            mockSetValidator.Setup(o => o.Validate(invalidSet)).Returns(validationResult);
+            mockSetValidator.Setup(o => o.ValidateAsync(invalidSet, default)).ReturnsAsync(validationResult);
 
             //Act
             var result = await SetEndpoints.CreateSet(workoutEntryId, invalidSet, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
@@ -62,7 +62,7 @@
                 .With(o => o.Errors, new List<ValidationFailure>())
                 .Create();
 
-            mockSetValidator.Setup(o => o.Validate(set)).Returns(validationResult);
+            mockSetValidator.Setup(o => o.ValidateAsync(set, default)).ReturnsAsync(validationResult);
 
             //Act
             var result = await SetEndpoints.CreateSet(workoutEntryId, set, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
@@ -97,7 +97,7 @@
                 .With(o => o.Errors, new List<ValidationFailure>())
                 .Create();
 
-            mockSetValidator.Setup(o => o.Validate(set)).Returns(validationResult);
+            mockSetValidator.Setup(o => o.ValidateAsync(set, default)).ReturnsAsync(validationResult);
 
             //Act
             var result = await SetEndpoints.CreateSet(workoutEntryId, set, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
@@ -128,7 +128,7 @@
                 .With(o => o.Errors, new List<ValidationFailure>())
                 .Create();
 
-            mockSetValidator.Setup(o => o.Validate(set)).Returns(validationResult);
+            mockSetValidator.Setup(o => o.ValidateAsync(set, default)).ReturnsAsync(validationResult);
 
             //Act
             var result = await SetEndpoints.UpdateSet(workoutId, set, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
@@ -172,7 +172,7 @@
                 .With(o => o.Errors, new List<ValidationFailure>())
                 .Create();
 
-            mockSetValidator.Setup(o => o.Validate(updatedSet)).Returns(validationResult);
+            mockSetValidator.Setup(o => o.ValidateAsync(updatedSet, default)).ReturnsAsync(validationResult);
 
             //Act
             var result = await SetEndpoints.UpdateSet(workoutEntryId, updatedSet, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
@@ -216,7 +216,7 @@
                 .With(o => o.Errors, new List<ValidationFailure>())
                 .Create();
 
-            mockSetValidator.Setup(o => o.Validate(updatedSet)).Returns(validationResult);
+            mockSetValidator.Setup(o => o.ValidateAsync(updatedSet, default)).ReturnsAsync(validationResult);
 
             //Act
             var result = await SetEndpoints.UpdateSet(workoutEntryId, updatedSet, mockWorkoutEntryRepository.Object, mockSetValidator.Object);
